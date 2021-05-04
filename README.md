@@ -98,28 +98,66 @@ The following screenshot displays the result of running `docker ps` after succes
 
 **Note**: The following image link needs to be updated. Replace `docker_ps_output.png` with the name of your screenshot image file.  
 
-
-
+https://github.com/stellak28/Cloud-Network/blob/main/Ansible/Docker_ps_output.png
 
 ### Target Machines & Beats
 This ELK server is configured to monitor the following machines:
-- _TODO: List the IP addresses of the machines you are monitoring_
+- List the IP addresses of the machines you are monitoring
+  Web-1 10.0.0.5
+  Web-2 10.0.0.6
+  Web-3 10.0.0.8
 
 We have installed the following Beats on these machines:
-- _TODO: Specify which Beats you successfully installed_
+- Specify which Beats you successfully installed
+  Elk server, Web-1, Web-2, and Web-3
+  Elk Stack: Metricbeat and Filebeat 
 
 These Beats allow us to collect the following information from each machine:
-- _TODO: In 1-2 sentences, explain what kind of data each beat collects, and provide 1 example of what you expect to see. E.g., `Winlogbeat` collects Windows logs, which we use to track user logon events, etc._
+- In 1-2 sentences, explain what kind of data each beat collects, and provide 1 example of what you expect to see. E.g., `Winlogbeat` collects Windows logs, which we use to track user logon events, etc.
+- Filebeat collects log events
+- Metricbeat collects metrics and statistics 
 
 ### Using the Playbook
 In order to use the playbook, you will need to have an Ansible control node already configured. Assuming you have such a control node provisioned: 
 
 SSH into the control node and follow the steps below:
-- Copy the _____ file to _____.
-- Update the _____ file to include...
-- Run the playbook, and navigate to ____ to check that the installation worked as expected.
+- Copy the Ansible ELK Installation and VM Configuration
+- Run the playbook, ansible-playbook install-elk.yml
+- For FILEBEAT:
 
-_TODO: Answer the following questions to fill in the blanks:_
-- _Which file is the playbook? Where do you copy it?_
-- _Which file do you update to make Ansible run the playbook on a specific machine? How do I specify which machine to install the ELK server on versus which to install Filebeat on?_
-- _Which URL do you navigate to in order to check that the ELK server is running?
+For FILEBEAT:
+
+Download Filebeat playbook usng this command:
+curl -L -O https://gist.githubusercontent.com/slape/5cc350109583af6cbe577bbcc0710c93/raw/eca603b72586fbe148c11f9c87bf96a63cb25760/Filebeat > /etc/ansible/files/filebeat-config.yml
+Copy the '/etc/ansible/files/filebeat-config.yml' file to '/etc/filebeat/filebeat-playbook.yml'
+Update the filebeat-playbook.yml file to include installer
+curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.6.1-amd64.deb
+Update the filebeat-config.yml file root@c1e0a059c0b0:/etc/ansible/files# nano filebeat-config.yml
+output.elasticsearch:
+  #Array of hosts to connect to.
+ hosts: ["10.1.0.4:9200"]
+  username: "elastic"
+  password: "changeme” 
+
+ setup.kibana:
+  host: "10.1.0.4:5601"
+Run the playbook using this command ansible-playbook filebeat-playbook.yml and navigate to Kibana > Logs : Add log data > System logs > 5:Module Status > Check data to check that the installation worked as expected.
+For METRICBEAT:
+
+Download Metricbeat playbook using this command:
+curl -L -O https://gist.githubusercontent.com/slape/58541585cc1886d2e26cd8be557ce04c/raw/0ce2c7e744c54513616966affb5e9d96f5e12f73/metricbeat > /etc/ansible/files/metricbeat-config.yml
+Copy the /etc/ansible/files/metricbeat file to /etc/metricbeat/metricbeat-playbook.yml
+Update the filebeat-playbook.yml file to include installer
+curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.6.1-amd64.deb
+Update the metricbeat file rename to metricbeat-config.yml
+root@c1e0a059c0b0:/etc/ansible/files# nano metricbeat-config.yml
+
+output.elasticsearch:
+#Array of hosts to connect to.
+hosts: ["10.1.0.4:9200"]
+  username: "elastic"
+  password: "changeme"
+
+setup.kibana:
+  host: "10.1.0.4:5601"
+Run the playbook, (ansible-playbook metricbeat-playbook.yml) and navigate to Kibana > Add Metric Data > Docker Metrics > Module Status to check that the installation worked as expected.
