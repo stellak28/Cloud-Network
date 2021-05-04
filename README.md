@@ -71,30 +71,14 @@ The main advantage of automating configuration with Ansible is that you can auto
 The playbook implements the following tasks:
 - In 3-5 bullets, explain the steps of the ELK installation play. E.g., install Docker; download image; etc._
 
-- Specify a different group of machines as well as a different remote user
-  - name: Config elk VM with Docker
-    hosts: elk
-    remote_user: sysadmin
-    become: true
-    tasks:
-Increase System Memory :
- - name: Use more memory
-  sysctl:
-    name: vm.max_map_count
-    value: '262144'
-    state: present
-    reload: yes
-Install the following services:
-   `docker.io`
-   `python3-pip`
-   `docker`, which is the Docker Python pip module.
-Launching and Exposing the container with these published ports:
- `5601:5601` 
- `9200:9200`
- `5044:5044`
-- 
+The playbook implements the following tasks:
 
-The following screenshot displays the result of running `docker ps` after successfully configuring the ELK instance.
+Install Docker
+Install python3-pip
+Install Docker python module
+Set the vm.max_map_count to 262144
+
+Download and launch a docker elk containerThe following screenshot displays the result of running `docker ps` after successfully configuring the ELK instance.
 
 **Note**: The following image link needs to be updated. Replace `docker_ps_output.png` with the name of your screenshot image file.  
 
@@ -118,46 +102,26 @@ These Beats allow us to collect the following information from each machine:
 - Metricbeat collects metrics and statistics 
 
 ### Using the Playbook
-In order to use the playbook, you will need to have an Ansible control node already configured. Assuming you have such a control node provisioned: 
+In order to use the playbook, you will need to have an Ansible control node already configured. Assuming you have such a control node provisioned:
 
 SSH into the control node and follow the steps below:
-- Copy the Ansible ELK Installation and VM Configuration
-- Run the playbook, ansible-playbook install-elk.yml
-- For FILEBEAT:
 
-For FILEBEAT:
+Copy the ansible.cfg file to /etc/ansible
+add the machine, its IP, and ansible_python_interpreter=/usr/bin/python3 to the hosts in the ansible.cfg as shown below:
+/etc/ansible/hosts
+[webservers] 10.0.0.4 ansible_python_interpreter=/usr/bin/python3 10.0.0.5 ansible_python_interpreter=/usr/bin/python3 10.0.0.6 ansible_python_interpreter=/usr/bin/python3
 
-Download Filebeat playbook usng this command:
-curl -L -O https://gist.githubusercontent.com/slape/5cc350109583af6cbe577bbcc0710c93/raw/eca603b72586fbe148c11f9c87bf96a63cb25760/Filebeat > /etc/ansible/files/filebeat-config.yml
-Copy the '/etc/ansible/files/filebeat-config.yml' file to '/etc/filebeat/filebeat-playbook.yml'
-Update the filebeat-playbook.yml file to include installer
-curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.6.1-amd64.deb
-Update the filebeat-config.yml file root@c1e0a059c0b0:/etc/ansible/files# nano filebeat-config.yml
-output.elasticsearch:
-  #Array of hosts to connect to.
- hosts: ["10.1.0.4:9200"]
-  username: "elastic"
-  password: "changeme” 
+[elk] 10.1.0.4 ansible_python_interpreter=/usr/bin/python3
 
- setup.kibana:
-  host: "10.1.0.4:5601"
-Run the playbook using this command ansible-playbook filebeat-playbook.yml and navigate to Kibana > Logs : Add log data > System logs > 5:Module Status > Check data to check that the installation worked as expected.
-For METRICBEAT:
-
-Download Metricbeat playbook using this command:
-curl -L -O https://gist.githubusercontent.com/slape/58541585cc1886d2e26cd8be557ce04c/raw/0ce2c7e744c54513616966affb5e9d96f5e12f73/metricbeat > /etc/ansible/files/metricbeat-config.yml
-Copy the /etc/ansible/files/metricbeat file to /etc/metricbeat/metricbeat-playbook.yml
-Update the filebeat-playbook.yml file to include installer
-curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.6.1-amd64.deb
-Update the metricbeat file rename to metricbeat-config.yml
-root@c1e0a059c0b0:/etc/ansible/files# nano metricbeat-config.yml
-
-output.elasticsearch:
-#Array of hosts to connect to.
-hosts: ["10.1.0.4:9200"]
-  username: "elastic"
-  password: "changeme"
-
-setup.kibana:
-  host: "10.1.0.4:5601"
-Run the playbook, (ansible-playbook metricbeat-playbook.yml) and navigate to Kibana > Add Metric Data > Docker Metrics > Module Status to check that the installation worked as expected.
+Copy the install-elk.yml and filebeat-playbook.yml file to /etc/ansible.
+Update the install-elk.yml and filebeat-playbook.yml file to include the machine you want use the playbooks on by changing the hosts name on the 3rd line.
+Run the playbook, and navigate to http://[your.VM.IP]:5601/app/kibana to check that the installation worked as expected.
+Commands to Use the Playbook
+nano ansible.cfg
+add the machine, its IP, and ansible_python_interpreter=/usr/bin/python3 to the hosts
+Ctrl + x to exit file
+in the folder that install-elk.yml is in, run: cp install-elk.yml /etc/ansible
+nano install-elk.yml /etc/ansible
+name: installing elk hosts: [your_machine]
+Ctrl + x to exit file
+ansible-playbook install-elk.yml
